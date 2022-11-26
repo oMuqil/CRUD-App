@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  sqldb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - SA_PASSWORD=vV5r9tn0M4@
+      - ACCEPT_EULA=Y
+    ports:
+      - "1440:1433"
+
+  fullstack.api:
+    image: ${DOCKER_REGISTRY-}fullstackapi
+    build:
+      context: .
+      dockerfile: FullStack.API/Dockerfile
+    
+     
+
+  webapp:
+    image: ${DOCKER_REGISTRY-}webapp
+    build:
+      context: .
+      dockerfile: WebApp/Dockerfile
+    ports:
+      - "8080:80"
+     
+
+

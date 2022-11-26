@@ -1,0 +1,277 @@
+﻿@page
+@model IndexModel
+@{
+
+    ViewData["Title"] = "Home page";
+}
+
+<div >
+    <table class="table " >
+        <thead>
+            <tr>
+                @*<td colspan="7" class="text-center">Employees</td>*@
+                <h2 class="mb-3">Employees</h2>
+            </tr>
+  <tr>
+                <th>
+                    Id
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Phone
+                </th>
+                <th>
+                    Salary
+                </th>
+                <th>
+                    Department
+                </th>
+                <th>Actions</th>
+        </tr>
+            </thead>
+        <tbody>
+        @{
+            // Get Employees details
+            HttpClient httpClient = new HttpClient();
+            try
+            {
+                using(var messageRequest = new HttpRequestMessage())
+                {
+                    messageRequest.Method = HttpMethod.Get;
+                    //messageRequest.RequestUri = new Uri("https://localhost:7241/api/Employees");
+
+                        //messageRequest.RequestUri = new Uri("https://localhost:58625/api/Employees");
+                        messageRequest.RequestUri = new Uri("http://localhost:55405/api/Employees"); 
+                    using HttpResponseMessage response = await httpClient.SendAsync(messageRequest);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    var employees = JsonConvert.DeserializeObject<List<Employee>>(responseBody);
+                    int i = 0;
+                    foreach (var employee in employees)
+                    {
+                        
+                        <tr>
+                            <td>
+                                @employee.Id
+                                <input type="hidden" id="emploeeId_@i" value="@employee.Id" />
+                            </td>
+                            <td>
+                                @employee.Name
+                            </td>
+                            <td>
+                                @employee.Email
+                            </td>
+                            <td>
+                                @employee.Phone
+                            </td>
+                            <td>
+                                @employee.Salary
+                            </td>
+                            <td>
+                                @employee.Department
+                            </td>
+                            <td>
+                                    <a id="Edit_@i" data-id="@employee.Id"  data-type="edit" href="#">Edit</a> <a data-id="@employee.Id" data-type="delete" id="Edit_@i" href="#">Delete</a>
+                            </td>
+                        </tr>
+                                       
+                        i++;
+            }
+                }
+       
+    }
+    catch (HttpRequestException e)
+    {
+        Console.WriteLine("\nException Caught!");
+        Console.WriteLine("Message :{0} ", e.Message);
+    }
+            
+    }
+    <tr>
+        <td colspan="7">
+             <button id="btnAddNew" class="btn btn-primary float-end">Add New Employee</button>
+        </td>
+    </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="employeeDataModalLong" tabindex="-1" data-method="" role="dialog" aria-labelledby="employeeDataModalLongTitle" aria-hidden="true">
+ <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="employeeDataModalLongTitle">Employee Details</h5>
+        <button id="btnClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+           <div class="row form-control">
+               <div >Id</div>
+                    <div><input class=" w-100" id="txtId" readonly disabled type="text" value="" /></div>
+           </div>
+                <div class="row form-control">
+                    <div >Name</div>
+                    <div><input id="txtName" class=" w-100" type="text" value="" required /></div>
+                </div>
+                <div class="row form-control">
+                    <div>Email</div>
+                    <div><input id="txtEmail" class=" w-100" type="text" value="" required /></div>
+                </div>
+                <div class="row form-control">
+                    <div >Phone</div>
+                    <div><input id="txtPhone" class=" w-100" type="text" value="" required/></div>
+                </div>
+                <div class="row form-control">
+                    <div>Salary</div>
+                    <div><input id="txtSalary" class=" w-100" type="text" value="" required /></div>
+                </div>
+                <div class="row form-control">
+                    <div>Department</div>
+                    <div><input id="txtDepartment" class=" w-100" type="text" value="" required/></div>
+                </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button id="btnSave" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+@section Scripts{
+<script>
+
+  //      $.ajax({ url: "http://localhost:55405/api/Employees", success: function (result) {
+  //  console.log(result);
+  //}});
+
+        $('#btnAddNew').click(function (){
+            $('#employeeDataModalLong').data('method', 'POST');
+            $('#employeeDataModalLong').modal('show');
+        });
+
+    $("a").on('click',function(e, i) {
+        
+        switch($(this).data('type')){
+        case "edit":
+                    $(this).parent("td").parent("tr").children("td").each(function (index) {
+                        //alert(index);
+                        switch (index) {
+                            case 0:
+                                console.log($(this).text());
+                                $("#txtId").val($.trim($(this).text()));
+                                break;
+                            case 1:
+                                $("#txtName").val($.trim($(this).text()));
+                                break;
+                            case 2:
+                                $("#txtEmail").val($.trim($(this).text()));
+                                break;
+                            case 3:
+                                $("#txtPhone").val($.trim($(this).text()));
+                                break;
+                            case 4:
+                                $("#txtSalary").val($.trim($(this).text()));
+                                break;
+                            case 5:
+                                $("#txtDepartment").val($.trim($(this).text()));
+                                break;
+                        }
+                    });
+                    $('#employeeDataModalLong').data('method', 'PUT');
+                    $('#employeeDataModalLong').modal('show');
+        break;
+        case "delete":
+                    var method = 'DELETE';
+                    //var url = 'https://localhost:7241/api/Employees';
+                     var url = http://localhost:55405/api/Employees';
+                    callAjax(method, url + "/" + $(this).data('id'), JSON.stringify({}));
+        break;
+        }
+
+        
+    });
+
+    $('#btnClose').click(function() {
+            $('#employeeDataModalLong').data('method', '');
+        $('#employeeDataModalLong').modal('hide');
+    });
+
+    $('#btnCancel').click(function () {
+            $('#employeeDataModalLong').data('method', '');
+        $('#employeeDataModalLong').modal('hide');
+    });
+
+        $('#btnSave').click(function () {
+
+            var id = $('#txtId').val();
+            if ($.trim(id) === '') id = '00000000-0000-0000-0000-000000000000';
+            var name = $('#txtName').val();
+            var email = $('#txtEmail').val();
+            var phone = $('#txtPhone').val();
+            var salary = $('#txtSalary').val();
+            var department = $('#txtDepartment').val();
+
+            var obj = {
+                    "id": id,
+                    "name": name,
+                    "email": email,
+                    "phone": phone,
+                    "salary": salary,
+                    "department": department
+            };
+            var data = JSON.stringify(obj);
+            var method = $('#employeeDataModalLong').data('method');
+            //var url = 'https://localhost:7241/api/Employees';
+            var url = http://localhost:55405/api/Employees';
+            switch(method){
+                case 'PUT':
+                    callAjax(method, url + "/" + id, data);
+                break;
+                case 'POST':
+                    callAjax(method, url, data);
+                break;
+            }
+
+            
+        });
+
+        $('#employeeDataModalLong').on('shown.bs.modal', function () {
+            $('#txtName').trigger('focus');
+        });
+
+        $('#employeeDataModalLong').on('hidden.bs.modal', function () {
+            $('#txtId').val('');
+            $('#txtName').val('');
+            $('#txtEmail').val('');
+            $('#txtPhone').val('');
+            $('#txtSalary').val('');
+            $('#txtDepartment').val('');
+            $('#employeeDataModalLong').data('method', '');
+        });
+
+        function callAjax(method, url, data) {        
+            $.ajax({
+                type: method,
+                url: url,
+                contentType: 'application/json',
+                data: data // access in body
+            }).done(function () {
+                console.log('SUCCESS');
+            }).fail(function (msg) {
+                console.log('FAIL');
+            }).always(function (msg) {
+                console.log('ALWAYS');
+                $('#employeeDataModalLong').modal('hide');
+                location.reload();
+            });        
+        }
+
+</script>
+}
