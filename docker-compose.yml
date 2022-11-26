@@ -14,7 +14,8 @@ services:
     build:
       context: .
       dockerfile: FullStack.API/Dockerfile
-    
+    ports:
+      - "5151:80"
      
 
   webapp:
@@ -24,6 +25,5 @@ services:
       dockerfile: WebApp/Dockerfile
     ports:
       - "8080:80"
-     
 
 

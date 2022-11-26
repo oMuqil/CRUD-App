@@ -46,9 +46,10 @@
                     //messageRequest.RequestUri = new Uri("https://localhost:7241/api/Employees");
 
                         //messageRequest.RequestUri = new Uri("https://localhost:58625/api/Employees");
-                        messageRequest.RequestUri = new Uri("http://localhost:55405/api/Employees"); 
-                    using HttpResponseMessage response = await httpClient.SendAsync(messageRequest);
-                    response.EnsureSuccessStatusCode();
+                        messageRequest.RequestUri = new Uri("http://host.docker.internal:5151/api/Employees");
+                        using HttpResponseMessage response = await httpClient.SendAsync(messageRequest);
+                    var res = response.EnsureSuccessStatusCode();
+        
                     string responseBody = await response.Content.ReadAsStringAsync();
                     var employees = JsonConvert.DeserializeObject<List<Employee>>(responseBody);
                     int i = 0;
@@ -85,10 +86,10 @@
                 }
        
     }
-    catch (HttpRequestException e)
+    catch (Exception e)
     {
         Console.WriteLine("\nException Caught!");
-        Console.WriteLine("Message :{0} ", e.Message);
+        Console.WriteLine("Message :{0} ", e.ToString());
     }
             
     }
@@ -146,10 +147,9 @@
  
 @section Scripts{
 <script>
-
-  //      $.ajax({ url: "http://localhost:55405/api/Employees", success: function (result) {
-  //  console.log(result);
-  //}});
+ $(document).ready(function () {
+        //var url = 'https://localhost:7241/api/Employees';
+            var url = 'http://host.docker.internal:5151/api/Employees';
 
         $('#btnAddNew').click(function (){
             $('#employeeDataModalLong').data('method', 'POST');
@@ -189,8 +189,7 @@
         break;
         case "delete":
                     var method = 'DELETE';
-                    //var url = 'https://localhost:7241/api/Employees';
-                     var url = http://localhost:55405/api/Employees';
+                   
                     callAjax(method, url + "/" + $(this).data('id'), JSON.stringify({}));
         break;
         }
@@ -228,8 +227,6 @@
             };
             var data = JSON.stringify(obj);
             var method = $('#employeeDataModalLong').data('method');
-            //var url = 'https://localhost:7241/api/Employees';
-            var url = http://localhost:55405/api/Employees';
             switch(method){
                 case 'PUT':
                     callAjax(method, url + "/" + id, data);
@@ -256,7 +253,10 @@
             $('#employeeDataModalLong').data('method', '');
         });
 
-        function callAjax(method, url, data) {        
+});
+
+
+        function callAjax(method, url, data) {
             $.ajax({
                 type: method,
                 url: url,
@@ -270,8 +270,7 @@
                 console.log('ALWAYS');
                 $('#employeeDataModalLong').modal('hide');
                 location.reload();
-            });        
+            });
         }
-
 </script>
 }
